@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Drawing;
+using System.IO;
+using System.Linq;
 
 namespace ASCII_art_generator
 {
@@ -9,7 +11,8 @@ namespace ASCII_art_generator
         //  Компенсатор ширины символа в консоли
         private const double WIDTH_OFFSET = 2.5;
         //  Ширина арта
-        private const int MAX_WIDTH = 250;
+        private const int MAX_WIDTH = 120;
+
         [STAThread]
         static void Main(string[] args)
         {
@@ -20,7 +23,6 @@ namespace ASCII_art_generator
             };
 
             Console.WriteLine("Для старта нажми Enter!");
-            //Console.ForegroundColor = ConsoleColor.Green;
             
             while (true)
             {
@@ -39,7 +41,7 @@ namespace ASCII_art_generator
                 bitmap.ConvertToGrayscale();
                 //  Переобразовываем картинку в ascii
                 var converter = new ImageToASCIIConverter(bitmap);
-                var rowsImage = converter.ConverToAscii();
+                var rowsImage = converter.ConvertForConsole();
 
                 foreach (var row in rowsImage)
                 {
@@ -47,6 +49,13 @@ namespace ASCII_art_generator
                 }
                 //  Курсор в начало
                 Console.SetCursorPosition(0, 0);
+
+                //  Путь для сохранения рядом с картинкой
+                string pathImageToTxt = Path.ChangeExtension(fileDialog.FileName, null)+"_ASCII.txt";
+                Console.WriteLine("Арт сохранен по пути - " + pathImageToTxt);
+                //  Сохраняем в txt
+                var rowsImageForFile = converter.ConvertForFile();
+                File.WriteAllLines(pathImageToTxt, rowsImageForFile.Select(rows => new string(rows)));
             }
         }
 
